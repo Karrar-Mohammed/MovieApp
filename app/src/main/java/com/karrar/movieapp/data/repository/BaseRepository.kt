@@ -2,8 +2,10 @@ package com.karrar.movieapp.data.repository
 
 import androidx.paging.PagingConfig
 import com.karrar.movieapp.data.remote.response.BaseListResponse
+import kotlinx.datetime.Instant
 import retrofit2.Response
 import java.util.*
+import kotlin.time.Duration.Companion.days
 
 abstract class BaseRepository {
 
@@ -39,15 +41,21 @@ abstract class BaseRepository {
 
     protected suspend fun refreshOneTimePerDay(
         requestDate:Long?,
-        refreshData :  suspend (Date) -> Unit){
+        refreshData :  suspend (Date) -> Unit
+    ) {
         val currentDate = Date()
-        if (requestDate != null) {
-            if (Date(requestDate).after(currentDate)) {
-                refreshData(currentDate)
-            }
-        } else {
+
+        if (shouldRefresh(currentDate.time, requestDate)) {
             refreshData(currentDate)
         }
     }
 
+    private fun shouldRefresh(currentDateMilli: Long, requestDate: Long?): Boolean {
+        return requestDate?.let {
+            val currentDate = Instant.fromEpochMilliseconds(currentDateMilli)
+            val refreshDate = Instant.fromEpochMilliseconds(requestDate).plus(1.days)
+
+            return currentDate > refreshDate
+        } ?: true
+    }
 }
