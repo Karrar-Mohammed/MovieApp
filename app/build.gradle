@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId "com.karrar.movieapp"
         minSdk 21
-        targetSdk 32
+        targetSdk 34
         versionCode 1
         versionName "1.0"
         buildConfigField "String", "API_KEY", localProperties['apiKey']
